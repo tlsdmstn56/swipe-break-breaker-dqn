@@ -21,6 +21,9 @@ pygame.display.set_caption(TITLE)
 clock = pygame.time.Clock()
 refresh_rate = 60
 
+seconds = 45 * 60
+ticks = 0
+
 #Colors
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
@@ -60,14 +63,22 @@ while not done:
     RIGHT = player[0] + player[2]
 
     if TOP <0:
-        player[1] = 0
+        player_vy += 5
     elif BOTTOM > HEIGHT:
-        player[1] = HEIGHT - player[3]
+        player_vy -= 5
 
     if LEFT < 0:
-        player[0] = 0
+        player_vx += 5
     elif RIGHT > WIDTH:
-        player[0] = WIDTH - player[2]
+        player_vx -= 5
+
+
+
+    ticks += 1
+    if ticks == 60:
+        player_vx += 5
+        player_vy += 5
+    
 
 
     #Drawing code (describe picture. it isn't actually drawn yet.)
