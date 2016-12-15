@@ -41,7 +41,11 @@ player_vx = 0
 player_vy = 0
 player_speed = 5
 
-block = [300, 200, 400, 400, 5]
+block1 = [100, 100, 50, 25, 5]
+block2 = [250, 100, 50, 25, 5]
+block3 = [400, 100, 50, 25, 5]
+
+blocks = [block1, block2, block3]
 
 # Game loop
 done = False
@@ -75,15 +79,16 @@ while not done:
     elif RIGHT > WIDTH:
         player_vx *= -1
 
-    block_rect = block[:4]
     
-    if intersects.rect_rect(player, block_rect):
-        if player_vx > 0:
-            player[0] = block_rect[0] - player[2]
-        else:
-            player[0] = block_rect[0] + block_rect[2]
-        player_vx *= -1
-        block[4] -= 1
+    for b in blocks:
+        block_rect = b[:4] 
+        if intersects.rect_rect(player, b):
+            if player_vx > 0:
+                player[0] = b[0] - player[2]
+            else:
+                player[0] = b[0] + b[2]
+            player_vx *= -1
+            b[4] -= 1
 
     ''' move the player in vertical direction '''
     player[1] += player_vy
@@ -97,13 +102,14 @@ while not done:
         player_vy *= -1
 
 
-    if intersects.rect_rect(player, block):
-        if player_vy > 0:
-            player[1] = block[1] - player[3]
-        else:
-            player[1] = block[1] + block[3]
-        player_vy *= -1 
- 
+    for b in blocks:
+        if intersects.rect_rect(player, b):
+            if player_vy > 0:
+                player[1] = b[1] - player[3]
+            else:
+                player[1] = b[1] + b[3]
+            player_vy *= -1 
+            b[4] -= 1 
   
     
 
@@ -112,11 +118,12 @@ while not done:
     screen.fill(BLACK)
 
     pygame.draw.ellipse(screen, BLUE, player)
-
-    if block[4] < 1:
-        pygame.draw.rect(screen, RED, block)
-    else:
-        pygame.draw.rect(screen, DARK_MINT, block)
+    for b in blocks:
+        block_rect = b[:4]
+        if b[4] < 1:
+            pygame.draw.rect(screen, RED, block_rect)
+        else:
+            pygame.draw.rect(screen, DARK_MINT, block_rect)
 
 
     #update screen(actually draw the picture in the window.)
