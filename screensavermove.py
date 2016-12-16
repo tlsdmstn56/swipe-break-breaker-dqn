@@ -34,18 +34,32 @@ GREEN = (0, 255, 0)
 MINT = (183, 255, 236)
 BLUE = (0, 131, 249)
 DARK_MINT = (0, 103, 111)
+MINT2 = (0, 164, 176)
+MINT3 = (0, 226, 244)
+MINT4 = (113, 244, 255)
+
+#font
+font = pygame.font.Font(None, 48)
 
 # Make a player
-player = [100, 100, 25, 25]
+player = [400, 775, 25, 25]
 player_vx = 0
 player_vy = 0
 player_speed = 5
 
-block1 = [100, 100, 50, 25, 5]
-block2 = [250, 100, 50, 25, 5]
-block3 = [400, 100, 50, 25, 5]
+playing = False
+win = False
 
-blocks = [block1, block2, block3]
+x_value = -5
+
+score = 0
+
+blocks = []
+
+for y in range(50, 300, 50):
+    for x in range(25, WIDTH, 125):
+        b = [x, y, 75, 25, 5]
+        blocks.append(b)
 
 # Game loop
 done = False
@@ -55,15 +69,23 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
+        if event.type == pygame.KEYDOWN:
+            if playing == False:
+                if event.key == pygame.K_LEFT:
+                    x_value = -5
+                elif event.key == pygame.K_RIGHT:
+                    x_value = 5
+                if event.key == pygame.K_SPACE:
+                    player_vx = x_value
+                    player_vy = -5
+                    playing = True
+                    score += 1
 
     
 
 
     # Game logic (Check for collisions, update points, etc.)
-    ticks += 1
-    if ticks == 60:
-        player_vx += 5
-        player_vy += 5
+
 
 
     ''' move the player in horizontal direction'''
@@ -99,7 +121,10 @@ while not done:
     if TOP < 0:
         player_vy *= -1
     elif BOTTOM > HEIGHT:
-        player_vy *= -1
+        player_vy = 0
+        player_vx = 0
+        playing = False
+        
 
 
     for b in blocks:
@@ -112,7 +137,12 @@ while not done:
             b[4] -= 1 
   
     
+    ''' get blocks '''
+    blocks = [b for b in blocks if b[4] > 1]
 
+    if len(blocks) == 0:
+        win = True
+        playing = True
 
     #Drawing code (describe picture. it isn't actually drawn yet.)
     screen.fill(BLACK)
@@ -120,12 +150,21 @@ while not done:
     pygame.draw.ellipse(screen, BLUE, player)
     for b in blocks:
         block_rect = b[:4]
-        if b[4] < 1:
-            pygame.draw.rect(screen, RED, block_rect)
-        else:
+        if b[4] == 5:
             pygame.draw.rect(screen, DARK_MINT, block_rect)
+        if b[4] == 4:
+            pygame.draw.rect(screen, MINT2, block_rect)
+        if b[4] == 3:
+            pygame.draw.rect(screen, MINT3, block_rect)
+        if b[4] == 2:
+            pygame.draw.rect(screen, MINT4, block_rect)
 
+    if win == True:
+        winner = font.render("You Win!", 1, WHITE)
+        screen.blit(winner, [400, 300])
 
+    scoring = font.render(str(score), 1, WHITE)
+    screen.blit(scoring, [0, 0])
     #update screen(actually draw the picture in the window.)
     pygame.display.flip()
 
