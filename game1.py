@@ -6,13 +6,8 @@
 import pygame
 import intersects
 
-
 # Initialze game engine
 pygame.init()
-
-# open file
-file = open('highScore.txt', 'r+')
-content = file.read()
 
 
 # Window
@@ -56,7 +51,6 @@ player_speed = 5
 
 playing = False
 win = False
-lose = False
 
 x_value = -5
 
@@ -156,15 +150,6 @@ while not done:
         win = True
         playing = True
 
-    if score >= 101:
-        lose = True
-        playing = True
-
-    if win == True:
-        with open('highScore.txt', 'r+') as f:
-            if str(score) < content:
-                file.write(score)
-
     #Drawing code (describe picture. it isn't actually drawn yet.)
     screen.fill(BLACK)
 
@@ -201,15 +186,8 @@ while not done:
         winner = font.render("You Win!", 1, WHITE)
         screen.blit(winner, [400, 300])
 
-    if lose == True:
-        loser = font.render("You Lose!", 1, WHITE)
-        screen.blit(loser, [400, 300])
-
     scoring = font.render(str(score), 1, WHITE)
     screen.blit(scoring, [0, 0])
-
-    highscore = font.render("High Score: " + content, 1, WHITE)
-    screen.blit(highscore, [700, 0])
     #update screen(actually draw the picture in the window.)
     pygame.display.flip()
 
