@@ -43,6 +43,7 @@ MINT2 = (0, 164, 176)
 MINT3 = (0, 226, 244)
 MINT4 = (113, 244, 255)
 MINT5 = (134, 254, 255)
+randco = (35, 54, 62)
 
 #font
 font = pygame.font.Font(None, 48)
@@ -66,10 +67,19 @@ direction = "Left"
 
 blocks = []
 
-for y in range(50, 300, 50):
+for y in range(100, 300, 50):
     for x in range(25, WIDTH, 125):
         b = [x, y, 75, 25, 5]
         blocks.append(b)
+
+powerups = []
+
+for y in range(50, 100, 50):
+    for x in range(25, WIDTH, 75):
+        p = [x, y, 25, 25, 1]
+        powerups.append(p)
+
+print(powerups)
 
 # Game loop
 done = False
@@ -124,6 +134,14 @@ while not done:
             player_vx *= -1
             b[4] -= 1
 
+    for p in powerups:
+        if intersects.rect_rect(player, p):
+            if player_vx > 0:
+                p[4] -= 1
+            else:
+                p[4] -= 1
+                
+
     ''' move the player in vertical direction '''
     player[1] += player_vy
 
@@ -147,10 +165,14 @@ while not done:
                 player[1] = b[1] + b[3]
             player_vy *= -1 
             b[4] -= 1 
-  
+
+    for p in powerups:
+        if intersects.rect_rect(player, p):
+            p[4] -= 1
     
     ''' get blocks '''
     blocks = [b for b in blocks if b[4] > 0]
+    powerups = [p for p in powerups if p[4] > 0]
 
     if len(blocks) == 0:
         win = True
@@ -195,6 +217,11 @@ while not done:
             pygame.draw.rect(screen, MINT5, block_rect)
             bhits = font2.render(str(b[4]), 1, WHITE)
             screen.blit(bhits, [b[0] + 30, b[1]])
+
+    for p in powerups:
+        powerup_rect = p[:4]
+        if p[4] >= 1:
+            pygame.draw.rect(screen, randco,  powerup_rect)
                                  
 
     if win == True:
