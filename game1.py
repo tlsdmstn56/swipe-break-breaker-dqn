@@ -1,4 +1,5 @@
-#this is the screen saver (math) function of my game
+#this is the first completely functioning version of this game, any
+#changes will be made to screensaver_move and if they work a game 2 will be made
 #
 # December 02, 2016
 #

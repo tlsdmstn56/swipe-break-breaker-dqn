@@ -1,6 +1,7 @@
-#this is the screen saver (math) function of my game
+#this is the constant in process game, every time you complete a new task save
+#it as a new game ex. game1
 #
-# December 02, 2016
+# March 16, 2017
 #
 
 import pygame
