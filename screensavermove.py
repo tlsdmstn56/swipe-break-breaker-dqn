@@ -48,7 +48,7 @@ randco = (35, 54, 62)
 
 #font
 font = pygame.font.Font(None, 48)
-font2 = pygame.font.Font(None, 42)
+font2 = pygame.font.Font(None, 35)
 
 # Make a player
 player = [400, 775, 25, 25]
@@ -59,6 +59,7 @@ player_speed = 5
 playing = False
 win = False
 lose = False
+game_over = False
 
 x_value = -5
 
@@ -68,8 +69,8 @@ direction = "Left"
 
 blocks = []
 
-for y in range(100, 300, 50):
-    for x in range(25, WIDTH, 125):
+for y in range(100, 300, 25):
+    for x in range(0, WIDTH - 50, 75):
         b = [x, y, 75, 25, 5]
         blocks.append(b)
 
@@ -91,18 +92,20 @@ while not done:
         if event.type == pygame.QUIT:
             done = True
         if event.type == pygame.KEYDOWN:
-            if playing == False:
-                if event.key == pygame.K_LEFT:
-                    x_value = -5
-                    direction = "Left"
-                elif event.key == pygame.K_RIGHT:
-                    x_value = 5
-                    direction = "Right"
-                if event.key == pygame.K_SPACE:
-                    player_vx = x_value
-                    player_vy = -5
-                    playing = True
-                    score += 1
+            if game_over == False:
+                if playing == False:
+                    if event.key == pygame.K_LEFT:
+                        x_value = -5
+                        direction = "Left"
+                    elif event.key == pygame.K_RIGHT:
+                        x_value = 5
+                        direction = "Right"
+                    if event.key == pygame.K_SPACE:
+                        player_vx = x_value
+                        player_vy = -5
+                        playing = True
+                        score += 1
+                    
 
     
 
@@ -154,6 +157,14 @@ while not done:
     elif BOTTOM > HEIGHT:
         player_vy = 0
         player_vx = 0
+        if playing == True:
+            for b in blocks:
+                if b[1] <= HEIGHT - 50:
+                    b[1]+= 25
+                    if b[1] >= HEIGHT - 25:
+                        lose = True
+                    
+
         playing = False
         
 
@@ -170,6 +181,7 @@ while not done:
     for p in powerups:
         if intersects.rect_rect(player, p):
             p[4] -= 1
+
     
     ''' get blocks '''
     blocks = [b for b in blocks if b[4] > 0]
@@ -183,11 +195,15 @@ while not done:
         lose = True
         playing = True
 
+    if lose == True:
+        game_over = True
+
     if win == True:
         with open('highScore.txt', 'r+') as f:
             if str(score) < content:
                 file.write(score)
 
+    
     #Drawing code (describe picture. it isn't actually drawn yet.)
     screen.fill(BLACK)
 
