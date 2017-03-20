@@ -6,7 +6,6 @@
 
 import pygame
 import intersects
-import math
 
 
 # Initialze game engine
@@ -61,7 +60,6 @@ playing = False
 win = False
 lose = False
 game_over = False
-speed = 7
 
 x_value = -5
 
@@ -71,9 +69,9 @@ direction = "Left"
 
 blocks = []
 
-for y in range(100, 125, 25):
-    for x in range(10, WIDTH - 50, 75):
-        b = [x, y, 74, 24, 1]
+for y in range(100, 300, 25):
+    for x in range(0, WIDTH - 50, 75):
+        b = [x, y, 74, 24, 5]
         blocks.append(b)
 
 powerups = []
@@ -85,16 +83,6 @@ for y in range(50, 100, 50):
 
 print(powerups)
 
-def get_vel(px, py, mx, my, speed):
-    a = mx - px
-    b = my - py
-    c = math.sqrt((a**2) + (b**2))
-
-    vx = int(speed) * (a/c)
-    vy = int(speed) * (b/c)
-
-    return vx, vy
-
 # Game loop
 done = False
 
@@ -103,31 +91,20 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-        if game_over == False:
-            if playing == False:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mx, my = pygame.mouse.get_pos()
-                    px, py = player[0], player[1]
-
-                    player_vx, player_vy = get_vel(px, py, mx, my, speed)
-                    playing = True
-                    score += 1
         if event.type == pygame.KEYDOWN:
             if game_over == False:
                 if playing == False:
-                   ''' if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_LEFT:
                         x_value = -5
                         direction = "Left"
                     elif event.key == pygame.K_RIGHT:
                         x_value = 5
                         direction = "Right"
-                  '''
-            
-                '''if event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_SPACE:
                         player_vx = x_value
                         player_vy = -5
                         playing = True
-                        score += 1'''
+                        score += 1
                     
 
     
@@ -180,17 +157,14 @@ while not done:
     elif BOTTOM > HEIGHT:
         player_vy = 0
         player_vx = 0
-        player[1] = HEIGHT - 25
         if playing == True:
             for b in blocks:
                 if b[1] <= HEIGHT - 50:
                     b[1]+= 25
                     if b[1] >= HEIGHT - 25:
                         lose = True
-            for y in range(100, 125, 25):
-                for x in range(10, WIDTH - 50, 75):
-                    b = [x, y, 74, 24, int(score)]
-                    blocks.append(b)
+                    
+
         playing = False
         
 
@@ -235,28 +209,28 @@ while not done:
 
     pygame.draw.ellipse(screen, BLUE, player)
 
-    #LorR = font.render("Direction: " + str(direction), 1, WHITE)
-    #screen.blit(LorR, [400, 0])
+    LorR = font.render("Direction: " + str(direction), 1, WHITE)
+    screen.blit(LorR, [400, 0])
     
     for b in blocks:
         block_rect = b[:4]
-        if 30 < b[4] <= 45:
+        if b[4] == 5:
             pygame.draw.rect(screen, DARK_MINT, block_rect)
             bhits = font2.render(str(b[4]), 1, WHITE)
             screen.blit(bhits, [b[0] + 30, b[1]])
-        if 18 < b[4] <= 30:
+        if b[4] == 4:
             pygame.draw.rect(screen, MINT2, block_rect)
             bhits = font2.render(str(b[4]), 1, WHITE)
             screen.blit(bhits, [b[0] + 30, b[1]])
-        if 9 < b[4] <= 18:
+        if b[4] == 3:
             pygame.draw.rect(screen, MINT3, block_rect)
             bhits = font2.render(str(b[4]), 1, WHITE)
             screen.blit(bhits, [b[0] + 30, b[1]])
-        if 3 < b[4] <= 9 :
+        if b[4] == 2:
             pygame.draw.rect(screen, MINT4, block_rect)
             bhits = font2.render(str(b[4]), 1, WHITE)
             screen.blit(bhits, [b[0] + 30, b[1]])
-        if b[4] <= 3:
+        if b[4] == 1:
             pygame.draw.rect(screen, MINT5, block_rect)
             bhits = font2.render(str(b[4]), 1, WHITE)
             screen.blit(bhits, [b[0] + 30, b[1]])
