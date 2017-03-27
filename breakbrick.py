@@ -17,7 +17,7 @@ file = open('highScore.txt', 'r+')
 content = file.read()
 
 # Window ///////////////////////////////////////////////////////////////////////
-WIDTH = 1000
+WIDTH = 835
 HEIGHT = 800
 SIZE = (WIDTH, HEIGHT)
 TITLE = "Brick Breaker"
@@ -73,7 +73,7 @@ class Ball:
         self.ball_speed = ball_speed
 
     def draw(self):
-        pygame.draw.ellipse(screen, BLUE, [self.x, self.y, self.width, self.height])
+        pygame.draw.ellipse(screen, RED, [self.x, self.y, self.width, self.height])
 
 
 # Make Blocks //////////////////////////////////////////////////////////////////
@@ -88,10 +88,34 @@ class Block:
         self.height = height
         self.hits = hits
 
+    def get_new_row():
+            
+        b1 = Block(0, 100, 100, 35, 2)
+        b2 = Block(105, 100, 100, 35, 15)
+        b3 = Block(210, 100, 100, 35, 2)
+        b4 = Block(315, 100, 100, 35, 2)
+        b5 = Block(420, 100, 100, 35, 2)
+        b6 = Block(525, 100, 100, 35, 2)
+        b7 = Block(630, 100, 100, 35, 2)
+        b8 = Block(735, 100, 100, 35, 2)
+
+        all = [b1, b2, b3, b4, b5, b6, b7, b8]
+
+        return random.sample(all, randint(1, 6))
+
+
     def draw(self):
-        pygame.draw.rect(screen, RED, [self.x, self.y, self.width, self.height])
+        pygame.draw.rect(screen, BLUE, [self.x, self.y, self.width, self.height])
         bhits = font2.render(str(self.hits), 1, WHITE)
-        screen.blit(bhits, [self.x + 30, self.y])
+        if self.hits < 10:
+            screen.blit(bhits, [self.x + 45, self.y + 5])
+        elif self.hits < 100:
+            screen.blit(bhits, [self.x + 40, self.y + 5])
+
+
+       
+        
+              
 
         
 # velocity for balls////////////////////////////////////////////////////////////
@@ -106,19 +130,28 @@ def get_vel(bx, by, mx, my, speed):
 
     return vx, vy
 
+
+
 # List of Blocks ///////////////////////////////////////////////////////////////
 
 blocks = []
 
-blocks.append(Block(5, 51, 99, 34, 2))
-blocks.append(Block(105, 51, 99, 34, 2))
-blocks.append(Block(205, 51, 99, 34, 2))
+blocks.append(Block(0, 100, 100, 35, 2))
+blocks.append(Block(105, 100, 100, 35, 15))
+blocks.append(Block(210, 100, 100, 35, 2))
+blocks.append(Block(315, 100, 100, 35, 2))
+blocks.append(Block(420, 100, 100, 35, 2))
+blocks.append(Block(525, 100, 100, 35, 2))
+blocks.append(Block(630, 100, 100, 35, 2))
+blocks.append(Block(735, 100, 100, 35, 2))
+
+
 
 # List of Balls ////////////////////////////////////////////////////////////////
 
 balls = []
 
-balls.append(Ball(500, 725, 25, 25, 0, 0, 5))
+balls.append(Ball(WIDTH/2, 715, 25, 25, 0, 0, 5))
 
 # Game Loop ////////////////////////////////////////////////////////////////////
 done = False
@@ -132,7 +165,9 @@ while not done:
             if playing == False:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mx, my = pygame.mouse.get_pos()
-                    #bx, by = 
+                    for b in balls:
+                        b.x = 
+                        b.y = 
 
                     ball_vx, ball_vy = get_vel(bx, by, mx, my, speed)
                     playing = True
@@ -157,8 +192,14 @@ while not done:
 
     pygame.draw.rect(screen, BLUE2, [0, 0, WIDTH, 50])
     pygame.draw.rect(screen, BLUE2, [0, HEIGHT - 50, WIDTH, 50])
-    pygame.draw.rect(screen, GREEN, [0, 50, WIDTH, 5])
-    pygame.draw.rect(screen, GREEN, [WIDTH - 5, 50, 5, HEIGHT - 110])
+    pygame.draw.rect(screen, BLACK, [0, 50, WIDTH, 10])
+    #pygame.draw.rect(screen, BLACK, [WIDTH - 10, 55, 10, HEIGHT - 105])
+    pygame.draw.rect(screen, BLACK, [0, HEIGHT - 60, WIDTH, 10])
+    #pygame.draw.rect(screen, BLACK, [0, 55, 10, HEIGHT - 110])
+
+    
+    
+    
 
     for b in balls:
         b.draw()
