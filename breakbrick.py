@@ -58,19 +58,83 @@ game_over = False
 speed = 7
 score = 0
 
+
+def intersects(rect1, rect2):
+    left1 = rect1[0]
+    right1 = rect1[0] + rect1[2]
+    top1 = rect1[1]
+    bottom1 = rect1[1] + rect1[3]
+
+    left2 = rect2[0]
+    right2 = rect2[0] + rect2[2]
+    top2 = rect2[1]
+    bottom2 = rect2[1] + rect2[3]    
+
+    return not (right1 <= left2 or
+                left1 >= right2 or
+                bottom1 <= top2 or
+                top1 >= bottom2)
+
 # Make a Player ////////////////////////////////////////////////////////////////
 
 class Ball:
 
-    def __init__(self, x, y, width, height, ball_vx, ball_vy, ball_speed):
+    def __init__(self, x, y, width, height):
 
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.ball_vx = ball_vx
-        self.ball_vy = ball_vy
-        self.ball_speed = ball_speed
+        self.vx = 0
+        self.vy = 0
+        
+    def get_rect(self):
+        return [self.x, self.y, self.width, self.height]
+    
+    def update(self):
+        ''' move ball in x direction '''
+        self.x += self.vx
+
+        ''' resolve x edge detection '''
+        if self.x < 0:
+            self.vx *= -1
+
+        if self.x > WIDTH - self.width:
+            self.vx *= -1
+
+        ''' resolve x block collisions '''
+        for b in blocks:
+            if intersects(self.get_rect(), b.get_rect()):
+                if self.vx > 0:
+                    self.x = b.x - self.width
+                else:
+                    self.x = b.x + b.width
+                self.vx *= -1
+                b.hits -= 1
+                        
+        '''move ball in y direction '''
+        self.y += self.vy
+
+        ''' resolve y edge detection '''
+        if self.y < 50:
+            self.vy *= -1
+
+        if self.y > HEIGHT - 50:
+            self.vy  = 0
+            self.vx  = 0
+
+        '''resolve y block collisions '''
+        for b in blocks:
+            if intersects(self.get_rect(), b.get_rect()):
+                if self.vy > 0:
+                    self.y = b.y - self.height
+                else:
+                    self.y = b.y + b.height
+                self.vy *= -1
+                b.hits -= 1
+
+                
+                
 
     def draw(self):
         pygame.draw.ellipse(screen, RED, [self.x, self.y, self.width, self.height])
@@ -88,6 +152,9 @@ class Block:
         self.height = height
         self.hits = hits
 
+    def get_rect(self):
+        return [self.x, self.y, self.width, self.height]
+
     def get_new_row():
             
         b1 = Block(0, 100, 100, 35, 2)
@@ -99,9 +166,9 @@ class Block:
         b7 = Block(630, 100, 100, 35, 2)
         b8 = Block(735, 100, 100, 35, 2)
 
-        all = [b1, b2, b3, b4, b5, b6, b7, b8]
+        row = [b1, b2, b3, b4, b5, b6, b7, b8]
 
-        return random.sample(all, randint(1, 6))
+        return random.sample(row, randint(1, 6))
 
 
     def draw(self):
@@ -151,7 +218,7 @@ blocks.append(Block(735, 100, 100, 35, 2))
 
 balls = []
 
-balls.append(Ball(WIDTH/2, 715, 25, 25, 0, 0, 5))
+balls.append(Ball(WIDTH/2, 715, 25, 25))
 
 # Game Loop ////////////////////////////////////////////////////////////////////
 done = False
@@ -165,27 +232,23 @@ while not done:
             if playing == False:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mx, my = pygame.mouse.get_pos()
+                    
                     for b in balls:
-                        b.x = 
-                        b.y = 
-
-                    ball_vx, ball_vy = get_vel(bx, by, mx, my, speed)
+                        b.vx, b.vy = get_vel(b.x, b.y, mx, my, speed)
+                    print(mx, my)
+                    
                     playing = True
                     score += 1
 
     # Game Logic ///////////////////////////////////////////////////////////////
 
-    ''' move the ball in horizontal direction '''
-    
+    ''' move balls '''
+    for b in balls:
+        b.update()
 
-    ''' resolves player collusiions with screen edges '''
-    '''LEFT = ball[0]
-    RIGHT = ball[0] + ball[2]
+   
+    ''' edge detection ''' 
 
-    if LEFT < 0:
-        ball_vx *= -1
-    elif RIGHT > WIDTH:
-        ball_vx *= -1'''
 
     # Drawing code /////////////////////////////////////////////////////////////
     screen.fill(LIGHT)
