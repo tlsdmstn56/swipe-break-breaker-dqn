@@ -143,6 +143,9 @@ def get_new_row():
     row = [b1, b2, b3, b4, b5, b6, b7, b8]
 
     return random.sample(row, randint(1, 6))
+
+
+
         
 
 # Make a Player ////////////////////////////////////////////////////////////////
@@ -225,7 +228,12 @@ class Block:
 
 
     def drop_row(self):
-        self.y += 40
+        
+        #############
+        if self.y <= HEIGHT - 160:
+            self.y += 40
+        else:
+            lose = True
 
     def draw(self):
         pygame.draw.rect(screen, BLUE, [self.x, self.y, self.width, self.height])
@@ -281,15 +289,16 @@ while not done:
             done = True
         if game_over == False:
             if playing == False:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mx, my = pygame.mouse.get_pos()
+                if lose == False:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mx, my = pygame.mouse.get_pos()
                     
-                    for b in balls:
-                        b.vx, b.vy = get_vel(b.x, b.y, mx, my, speed)
-                    print(mx, my)
+                        for b in balls:
+                            b.vx, b.vy = get_vel(b.x, b.y, mx, my, speed)
+                        print(mx, my)
                     
-                    playing = True
-                    score += 1
+                        playing = True
+                        score += 1
                     
 
     # Game Logic ///////////////////////////////////////////////////////////////
@@ -301,6 +310,9 @@ while not done:
     remove(blocks)
 
     if all_stopped(balls) == True:
+        if playing == True:
+            for b in blocks:
+                b.drop_row(lose)
         playing = False
         
 
