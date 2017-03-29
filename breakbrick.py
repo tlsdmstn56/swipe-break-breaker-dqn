@@ -49,6 +49,7 @@ randco = (35, 54, 62)
 # Font //////////////////////////////////////////////////////////////////////////
 font = pygame.font.Font(None, 48)
 font2 = pygame.font.Font(None, 35)
+font3 = pygame.font.Font(None, 70)
 
 # Stuff to set outside game loop ///////////////////////////////////////////////
 playing = False
@@ -58,7 +59,27 @@ game_over = False
 speed = 7
 score = 0
 
+''' draw the board '''
+def draw_board():
+    screen.fill(LIGHT)
 
+    '''borders '''
+    pygame.draw.rect(screen, BLUE2, [0, 0, WIDTH, 50])
+    pygame.draw.rect(screen, BLUE2, [0, HEIGHT - 50, WIDTH, 50])
+    pygame.draw.rect(screen, BLACK, [0, 50, WIDTH, 10])
+    pygame.draw.rect(screen, BLACK, [0, HEIGHT - 60, WIDTH, 10])
+
+    ''' score '''
+    scoring = font.render("Score: " + str(score), 1, WHITE)
+    screen.blit(scoring, [0, 0])
+
+    ''' title '''
+    name = font3.render("Click Brick Break", 1, WHITE)
+    screen.blit(name, [200, HEIGHT - 50])
+    
+
+
+''' Intersects function '''
 def intersects(rect1, rect2):
     left1 = rect1[0]
     right1 = rect1[0] + rect1[2]
@@ -74,6 +95,55 @@ def intersects(rect1, rect2):
                 left1 >= right2 or
                 bottom1 <= top2 or
                 top1 >= bottom2)
+
+''' This allows for the next click to be made '''
+def all_stopped(balls):
+
+    for b in balls:
+        if b.vx != 0 or b.vy != 0:
+            return False
+
+    return True
+
+''' this removes the blocks when all of the hits have been made '''
+def remove(blocks):
+
+    to_remove = []
+
+    for b in blocks:
+        if b.hits == 0:
+            to_remove.append(b)
+
+    for t in to_remove:
+        blocks.remove(t)
+
+''' this gets the ball slope from the mouse click '''
+def get_vel(bx, by, mx, my, speed):
+    a = mx - bx
+    b = my - by
+    c = math.sqrt((a**2) + (b**2))
+
+    vx = int(speed) * (a/c)
+    vy = int(speed) * (b/c)
+
+    return vx, vy
+
+''' drops a new row of blocks at the end of each turn '''
+def get_new_row():
+            
+    b1 = Block(0, 100, 100, 35, 2)
+    b2 = Block(105, 100, 100, 35, 15)
+    b3 = Block(210, 100, 100, 35, 2)
+    b4 = Block(315, 100, 100, 35, 2)
+    b5 = Block(420, 100, 100, 35, 2)
+    b6 = Block(525, 100, 100, 35, 2)
+    b7 = Block(630, 100, 100, 35, 2)
+    b8 = Block(735, 100, 100, 35, 2)
+
+    row = [b1, b2, b3, b4, b5, b6, b7, b8]
+
+    return random.sample(row, randint(1, 6))
+        
 
 # Make a Player ////////////////////////////////////////////////////////////////
 
@@ -116,12 +186,13 @@ class Ball:
         self.y += self.vy
 
         ''' resolve y edge detection '''
-        if self.y < 50:
+        if self.y < 60:
             self.vy *= -1
 
-        if self.y > HEIGHT - 50:
+        if self.y > HEIGHT - 85:
             self.vy  = 0
             self.vx  = 0
+            self.y = HEIGHT - 85
 
         '''resolve y block collisions '''
         for b in blocks:
@@ -132,9 +203,6 @@ class Ball:
                     self.y = b.y + b.height
                 self.vy *= -1
                 b.hits -= 1
-
-                
-                
 
     def draw(self):
         pygame.draw.ellipse(screen, RED, [self.x, self.y, self.width, self.height])
@@ -155,21 +223,9 @@ class Block:
     def get_rect(self):
         return [self.x, self.y, self.width, self.height]
 
-    def get_new_row():
-            
-        b1 = Block(0, 100, 100, 35, 2)
-        b2 = Block(105, 100, 100, 35, 15)
-        b3 = Block(210, 100, 100, 35, 2)
-        b4 = Block(315, 100, 100, 35, 2)
-        b5 = Block(420, 100, 100, 35, 2)
-        b6 = Block(525, 100, 100, 35, 2)
-        b7 = Block(630, 100, 100, 35, 2)
-        b8 = Block(735, 100, 100, 35, 2)
 
-        row = [b1, b2, b3, b4, b5, b6, b7, b8]
-
-        return random.sample(row, randint(1, 6))
-
+    def drop_row(self):
+        self.y += 40
 
     def draw(self):
         pygame.draw.rect(screen, BLUE, [self.x, self.y, self.width, self.height])
@@ -179,23 +235,12 @@ class Block:
         elif self.hits < 100:
             screen.blit(bhits, [self.x + 40, self.y + 5])
 
-
+            
        
         
               
 
         
-# velocity for balls////////////////////////////////////////////////////////////
-
-def get_vel(bx, by, mx, my, speed):
-    a = mx - bx
-    b = my - by
-    c = math.sqrt((a**2) + (b**2))
-
-    vx = int(speed) * (a/c)
-    vy = int(speed) * (b/c)
-
-    return vx, vy
 
 
 
@@ -211,6 +256,12 @@ blocks.append(Block(420, 100, 100, 35, 2))
 blocks.append(Block(525, 100, 100, 35, 2))
 blocks.append(Block(630, 100, 100, 35, 2))
 blocks.append(Block(735, 100, 100, 35, 2))
+
+blocks.append(Block(0, 140, 100, 35, 2))
+blocks.append(Block(105, 140, 100, 35, 2))
+
+blocks.append(Block(0, 180, 100, 35, 2))
+
 
 
 
@@ -239,6 +290,7 @@ while not done:
                     
                     playing = True
                     score += 1
+                    
 
     # Game Logic ///////////////////////////////////////////////////////////////
 
@@ -246,24 +298,19 @@ while not done:
     for b in balls:
         b.update()
 
+    remove(blocks)
+
+    if all_stopped(balls) == True:
+        playing = False
+        
+
    
     ''' edge detection ''' 
 
 
     # Drawing code /////////////////////////////////////////////////////////////
-    screen.fill(LIGHT)
-
-    pygame.draw.rect(screen, BLUE2, [0, 0, WIDTH, 50])
-    pygame.draw.rect(screen, BLUE2, [0, HEIGHT - 50, WIDTH, 50])
-    pygame.draw.rect(screen, BLACK, [0, 50, WIDTH, 10])
-    #pygame.draw.rect(screen, BLACK, [WIDTH - 10, 55, 10, HEIGHT - 105])
-    pygame.draw.rect(screen, BLACK, [0, HEIGHT - 60, WIDTH, 10])
-    #pygame.draw.rect(screen, BLACK, [0, 55, 10, HEIGHT - 110])
-
+    draw_board()
     
-    
-    
-
     for b in balls:
         b.draw()
 
