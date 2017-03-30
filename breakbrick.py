@@ -144,8 +144,18 @@ def get_new_row():
 
     return random.sample(row, randint(1, 6))
 
+'''
+def game_over(blocks):
+    first = blocks[0].y
+    for b in blocks:
+        if b.y >= first:
+            first = b.y
+    if first <= HEIGHT - 160:
+        gameOver = False
+    else:
+        gameOver = True
 
-
+'''
         
 
 # Make a Player ////////////////////////////////////////////////////////////////
@@ -227,13 +237,16 @@ class Block:
         return [self.x, self.y, self.width, self.height]
 
 
-    def drop_row(self):
+    def drop_row(self, blocks):
+        first = blocks[0].y
+        for b in blocks:
+            if b.y >= first:
+                first = b.y
         
-        #############
-        if self.y <= HEIGHT - 160:
+        if first <= HEIGHT - 120:
             self.y += 40
-        else:
-            lose = True
+        
+        
 
     def draw(self):
         pygame.draw.rect(screen, BLUE, [self.x, self.y, self.width, self.height])
@@ -308,12 +321,13 @@ while not done:
         b.update()
 
     remove(blocks)
-
+    
     if all_stopped(balls) == True:
         if playing == True:
             for b in blocks:
-                b.drop_row(lose)
+                 b.drop_row(blocks)
         playing = False
+    
         
 
    
