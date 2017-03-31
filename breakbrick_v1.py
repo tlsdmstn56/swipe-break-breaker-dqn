@@ -2,17 +2,12 @@
 #This code will be similar to the original one that I have but will
 #include functions and more organization
 #
-#this is still the in progress code, so there will be version floating around
-#for example as of right now I have a v1 that is updated to the drop row()
-# stopping at the bottom but the game not ending
-#
-# March 31, 2017
+# March 20, 2017
 #
 
 import pygame
 import intersects
 import math
-import random
 
 # Initialize game engine ///////////////////////////////////////////////////////
 pygame.init()
@@ -55,16 +50,15 @@ randco = (35, 54, 62)
 font = pygame.font.Font(None, 48)
 font2 = pygame.font.Font(None, 35)
 font3 = pygame.font.Font(None, 70)
-font4 = pygame.font.Font(None, 100)
 
 # Stuff to set outside game loop ///////////////////////////////////////////////
-
-
-
+playing = False
+win = False
+game_over = False
 speed = 7
 score = 0
-clicking = False
-stage = 'delay'
+lose = False
+stage = playing
 
 ''' draw the board '''
 def draw_board():
@@ -83,17 +77,8 @@ def draw_board():
     ''' title '''
     name = font3.render("Click Brick Break", 1, WHITE)
     screen.blit(name, [200, HEIGHT - 50])
-
-'''displays the game_over message'''    
-def game_over(blocks):
-    if len(blocks) > 0:
-        lose = font4.render("You Lose =(", 1, BLACK)
-        screen.blit(lose, [200, 300])
-    '''if len(blocks) <= 0:
-        win = font4.render("YOU WIN! =)", 1, BLACK)
-        screen.blit(win, [200, 300])'''
     
-     
+
 
 ''' Intersects function '''
 def intersects(rect1, rect2):
@@ -145,30 +130,34 @@ def get_vel(bx, by, mx, my, speed):
     return vx, vy
 
 ''' drops a new row of blocks at the end of each turn '''
-def get_new_row(blocks):
+def get_new_row():
             
-    b1 = Block(0, 100, 100, 35, int(score))
-    b2 = Block(105, 100, 100, 35, int(score))
-    b3 = Block(210, 100, 100, 35, int(score))
-    b4 = Block(315, 100, 100, 35, int(score))
-    b5 = Block(420, 100, 100, 35, int(score))
-    b6 = Block(525, 100, 100, 35, int(score))
-    b7 = Block(630, 100, 100, 35, int(score))
-    b8 = Block(735, 100, 100, 35, int(score))
+    b1 = Block(0, 100, 100, 35, 2)
+    b2 = Block(105, 100, 100, 35, 15)
+    b3 = Block(210, 100, 100, 35, 2)
+    b4 = Block(315, 100, 100, 35, 2)
+    b5 = Block(420, 100, 100, 35, 2)
+    b6 = Block(525, 100, 100, 35, 2)
+    b7 = Block(630, 100, 100, 35, 2)
+    b8 = Block(735, 100, 100, 35, 2)
 
     row = [b1, b2, b3, b4, b5, b6, b7, b8]
 
-    rlist = [ row[i] for i in random.sample(range(len(row)), 4) ]
+    return random.sample(row, randint(1, 6))
 
-    blocks.append(rlist[0])
-    blocks.append(rlist[1])
-    blocks.append(rlist[2])
+'''
+def game_over(blocks):
+    first = blocks[0].y
+    for b in blocks:
+        if b.y >= first:
+            first = b.y
+    if first <= HEIGHT - 160:
+        gameOver = False
+    else:
+        gameOver = True
 
-    
-
-
-
-   
+'''
+        
 
 # Make a Player ////////////////////////////////////////////////////////////////
 
@@ -250,16 +239,16 @@ class Block:
 
 
     def drop_row(self, blocks):
-        if len(blocks) > 0:
-            first = blocks[0].y
-            for b in blocks:
-                if b.y >= first:
-                    first = b.y
+        first = blocks[0].y
+        for b in blocks:
+            if b.y >= first:
+                first = b.y
         
-            if first <= HEIGHT - 120:
-                self.y += 40
+        if first <= HEIGHT - 120:
+            self.y += 40
 
-        
+        if first <= HEIGHT - 120:
+            lose = True
         
         
 
@@ -315,50 +304,38 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-        if stage == 'delay':
-                if event.type == pygame.MOUSEBUTTONUP:
-                    mx, my = pygame.mouse.get_pos()
+        if game_over == False:
+            if playing == False:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mx, my = pygame.mouse.get_pos()
                     
-                    for b in balls:
-                        b.vx, b.vy = get_vel(b.x, b.y, mx, my, speed)
-                    print(mx, my)
-                    stage = 'playing'
-                    score += 1
-
-    pressed = pygame.mouse.get_pressed()
+                        for b in balls:
+                            b.vx, b.vy = get_vel(b.x, b.y, mx, my, speed)
+                        print(mx, my)
+                    
+                        playing = True
+                        score += 1
                     
 
     # Game Logic ///////////////////////////////////////////////////////////////
 
-    showline = pressed[0]
-        
     ''' move balls '''
-    if stage == 'playing':
-        for b in balls:
-            b.update()
+    
+    for b in balls:
+        b.update()
 
     remove(blocks)
     
     if all_stopped(balls) == True:
-        if stage == 'playing':
+        if playing == True:
             for b in blocks:
                  b.drop_row(blocks)
-            get_new_row(blocks)
-            
-            stage = 'delay'
+        playing = False
+    
+        
 
-            if len(blocks) > 0:
-                first = blocks[0].y
-                for b in blocks:
-                    if b.y >= first:
-                        first = b.y
-                if first >= HEIGHT - 120:
-                    stage = 'end'
-            '''else:
-                stage = 'end'''
-    
-    
-     
+   
+    ''' edge detection ''' 
 
 
     # Drawing code /////////////////////////////////////////////////////////////
@@ -369,12 +346,6 @@ while not done:
 
     for b in blocks:
         b.draw()
-
-    if showline:
-        pygame.draw.line(screen, RED, [balls[0].x, balls[0].y], [mx, my,], 1)
-
-    if stage == 'end':
-        game_over(blocks)    
     
     #update screen ///////////////////////////////////////////////////////////
     pygame.display.flip()
