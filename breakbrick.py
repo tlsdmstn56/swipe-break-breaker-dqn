@@ -127,11 +127,25 @@ def remove(blocks):
     to_remove = []
 
     for b in blocks:
-        if b.hits == 0:
+        if b.hits <= 0:
             to_remove.append(b)
+
 
     for t in to_remove:
         blocks.remove(t)
+
+
+def remove_powerup(powerups):
+
+    to_remove = []
+
+    for p in powerups:
+        if p.hits <= 0:
+            to_remove.append(p)
+
+    for t in to_remove:
+        powerups.remove(t)
+
 
 ''' this gets the ball slope from the mouse click '''
 def get_vel(bx, by, mx, my, speed):
@@ -156,7 +170,7 @@ def get_new_row(blocks):
     b7 = Block(630, 100, 100, 35, int(score))
     b8 = Block(735, 100, 100, 35, int(score))
 
-    row = [b1, b2, b3, b4, b5, b6, b7, b8]
+    row = [b1, b2, b4, b5, b7, b8]
 
     rlist = [ row[i] for i in random.sample(range(len(row)), 4) ]
 
@@ -164,9 +178,19 @@ def get_new_row(blocks):
     blocks.append(rlist[1])
     blocks.append(rlist[2])
 
-    
+def get_new_powerup(powerups):
 
+    p3 = Powerup(210, 100, 100, 35, 1)
+    p6 = Powerup(525, 100, 100, 35, 1)
 
+    row =  [p3, p6]
+
+    num = random.randint(0, 1)
+
+    rlist = [ row[i] for i in random.sample(range(len(row)), num) ]
+
+    if num > 0:
+        powerups.append(rlist[0])
 
    
 
@@ -174,12 +198,13 @@ def get_new_row(blocks):
 
 class Ball:
 
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, delay):
 
         self.x = x
         self.y = y
         self.width = width
         self.height = height
+        self.delay = delay
         self.vx = 0
         self.vy = 0
         
@@ -188,7 +213,8 @@ class Ball:
     
     def update(self):
         ''' move ball in x direction '''
-        self.x += self.vx
+        if self.delay <= 0:
+            self.x += self.vx
 
         ''' resolve x edge detection '''
         if self.x < 0:
@@ -206,9 +232,16 @@ class Ball:
                     self.x = b.x + b.width
                 self.vx *= -1
                 b.hits -= 1
-                        
+
+        ''' resolve x powerup collisions '''
+        '''for p in powerups:
+            if intersects(self.get_rect(), p.get_rect()):
+                p.hits -= 1
+                balls.append(Ball(WIDTH/2, 715, 25, 25, 50))''' #come back to solve powerup problem
+                
         '''move ball in y direction '''
-        self.y += self.vy
+        if self.delay <= 0:
+            self.y += self.vy
 
         ''' resolve y edge detection '''
         if self.y < 60:
@@ -229,6 +262,13 @@ class Ball:
                 self.vy *= -1
                 b.hits -= 1
 
+        '''resolve y powerup collisions '''
+        '''for p in powerups:
+            if intersects(self.get_rect(), p.get_rect()):
+                p.hits -= 1
+                balls.append(Ball(WIDTH/2, 715, 25, 25))'''
+        
+                
     def draw(self):
         pygame.draw.ellipse(screen, RED, [self.x, self.y, self.width, self.height])
 
@@ -275,7 +315,26 @@ class Block:
        
         
               
+# Make Power ups
+class Powerup:
 
+    def __init__(self, x, y, width, height, hits):
+
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.hits = hits
+
+    def get_rect(self):
+        return[self.x, self.y, self.width, self.height]
+
+    def drop_row(self, powerups):
+        self.y += 40
+ 
+
+    def draw(self):
+        pygame.draw.rect(screen, GREEN, [self.x, self.y, self.width, self.height])
         
 
 
@@ -305,7 +364,15 @@ blocks.append(Block(0, 180, 100, 35, 2))
 
 balls = []
 
-balls.append(Ball(WIDTH/2, 715, 25, 25))
+balls.append(Ball(WIDTH/2, 715, 25, 25, 0))
+balls.append(Ball(WIDTH/2, 715, 25, 25, 0))
+balls.append(Ball(WIDTH/2, 715, 25, 25, 0))
+
+# List of Power Ups
+
+powerups = []
+
+powerups.append(Powerup(75, 600, 25, 25, 1))
 
 # Game Loop ////////////////////////////////////////////////////////////////////
 done = False
@@ -318,14 +385,17 @@ while not done:
         if stage == 'delay':
                 if event.type == pygame.MOUSEBUTTONUP:
                     mx, my = pygame.mouse.get_pos()
-                    
+
                     for b in balls:
                         b.vx, b.vy = get_vel(b.x, b.y, mx, my, speed)
+                        
                     print(mx, my)
                     stage = 'playing'
                     score += 1
 
     pressed = pygame.mouse.get_pressed()
+    if pressed:
+        m_x, m_y = pygame.mouse.get_pos()
                     
 
     # Game Logic ///////////////////////////////////////////////////////////////
@@ -336,14 +406,26 @@ while not done:
     if stage == 'playing':
         for b in balls:
             b.update()
+            if all_stopped(balls) == False:
+                b.delay -= 1
+
+    
 
     remove(blocks)
+    remove(powerups)
     
     if all_stopped(balls) == True:
         if stage == 'playing':
             for b in blocks:
                  b.drop_row(blocks)
+            for p in powerups:
+                p.drop_row(powerups)
             get_new_row(blocks)
+            get_new_powerup(powerups)
+            print(len(balls))
+            begin = balls[0].x
+            for b in balls:
+                b.x = begin
             
             stage = 'delay'
 
@@ -370,8 +452,11 @@ while not done:
     for b in blocks:
         b.draw()
 
+    '''for p in powerups:
+        p.draw()'''
+
     if showline:
-        pygame.draw.line(screen, RED, [balls[0].x, balls[0].y], [mx, my,], 1)
+        pygame.draw.line(screen, RED, [balls[0].x + 10, balls[0].y + 10], [m_x, m_y,], 1)
 
     if stage == 'end':
         game_over(blocks)    
