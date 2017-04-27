@@ -78,11 +78,11 @@ def draw_board():
 
     ''' score '''
     scoring = font.render("Score: " + str(score), 1, WHITE)
-    screen.blit(scoring, [0, 0])
+    screen.blit(scoring, [5, 7])
 
     ''' ball count '''
     ballCount = font.render("Ball Count: " + str(len(balls)), 1, WHITE)
-    screen.blit(ballCount, [300, 0])
+    screen.blit(ballCount, [300, 7])
 
     ''' title '''
     name = font3.render("Click Brick Break", 1, WHITE)
@@ -91,10 +91,17 @@ def draw_board():
 '''displays the game_over message'''    
 def game_over(blocks):
     pygame.draw.rect(screen, WHITE, [105, 100, 625, 600])
+    pygame.draw.rect(screen, BLACK, [105, 100, 625, 600], 10)
+    pygame.draw.rect(screen, RED, [120, 230, 585, 20])
     if len(blocks) > 0:
-        lose = font4.render("GAME OVER =(", 1, BLACK)
-        screen.blit(lose, [200, 300])
-    
+        lose = font4.render("GAME OVER", 1, BLACK)
+        screen.blit(lose, [200, 150])
+    finalScore = font3.render("FINAL SCORE: " + str(score), 1, BLACK)
+    screen.blit(finalScore, [200, 280])
+    finalCount = font3.render("FINAL BALL COUNT: " + str(len(balls)), 1, BLACK)
+    screen.blit(finalCount, [160, 360])
+    img = pygame.image.load('finger_guns.jpg')
+    screen.blit(img, [160, 425])
     
      
 
@@ -353,19 +360,16 @@ class Powerup:
 
 blocks = []
 
-blocks.append(Block(0, 100, 100, 35, 2))
-blocks.append(Block(105, 100, 100, 35, 15))
-blocks.append(Block(210, 100, 100, 35, 2))
-blocks.append(Block(315, 100, 100, 35, 2))
-blocks.append(Block(420, 100, 100, 35, 2))
-blocks.append(Block(525, 100, 100, 35, 2))
-blocks.append(Block(630, 100, 100, 35, 2))
-blocks.append(Block(735, 100, 100, 35, 2))
+blocks.append(Block(0, 100, 100, 35, 1))
+blocks.append(Block(105, 100, 100, 35, 1))
+blocks.append(Block(210, 100, 100, 35, 1))
+blocks.append(Block(315, 100, 100, 35, 1))
+blocks.append(Block(420, 100, 100, 35, 1))
+blocks.append(Block(525, 100, 100, 35, 1))
+blocks.append(Block(630, 100, 100, 35, 1))
+blocks.append(Block(735, 100, 100, 35, 1))
 
-blocks.append(Block(0, 140, 100, 35, 2))
-blocks.append(Block(105, 140, 100, 35, 2))
 
-blocks.append(Block(0, 180, 100, 35, 2))
 
 
 
@@ -375,15 +379,12 @@ blocks.append(Block(0, 180, 100, 35, 2))
 balls = []
 
 balls.append(Ball(WIDTH/2, 715, 25, 25, 0))
-balls.append(Ball(WIDTH/2, 715, 25, 25, 0))
-balls.append(Ball(WIDTH/2, 715, 25, 25, 0))
 
 # List of Power Ups
 
 powerups = []
 
-powerups.append(Powerup(75, 600, 25, 25, 1))
-powerups.append(Powerup(210, 500, 100, 35, 1))
+
 
 # Game Loop ////////////////////////////////////////////////////////////////////
 done = False
