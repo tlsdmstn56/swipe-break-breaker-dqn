@@ -80,18 +80,21 @@ def draw_board():
     scoring = font.render("Score: " + str(score), 1, WHITE)
     screen.blit(scoring, [0, 0])
 
+    ''' ball count '''
+    ballCount = font.render("Ball Count: " + str(len(balls)), 1, WHITE)
+    screen.blit(ballCount, [300, 0])
+
     ''' title '''
     name = font3.render("Click Brick Break", 1, WHITE)
     screen.blit(name, [200, HEIGHT - 50])
 
 '''displays the game_over message'''    
 def game_over(blocks):
+    pygame.draw.rect(screen, WHITE, [105, 100, 625, 600])
     if len(blocks) > 0:
-        lose = font4.render("You Lose =(", 1, BLACK)
+        lose = font4.render("GAME OVER =(", 1, BLACK)
         screen.blit(lose, [200, 300])
-    '''if len(blocks) <= 0:
-        win = font4.render("YOU WIN! =)", 1, BLACK)
-        screen.blit(win, [200, 300])'''
+    
     
      
 
@@ -234,10 +237,10 @@ class Ball:
                 b.hits -= 1
 
         ''' resolve x powerup collisions '''
-        '''for p in powerups:
+        for p in powerups:
             if intersects(self.get_rect(), p.get_rect()):
                 p.hits -= 1
-                balls.append(Ball(WIDTH/2, 715, 25, 25, 50))''' #come back to solve powerup problem
+                balls.append(Ball(WIDTH/2, 715, 25, 25, 50)) #come back to solve powerup problem
                 
         '''move ball in y direction '''
         if self.delay <= 0:
@@ -306,10 +309,17 @@ class Block:
     def draw(self):
         pygame.draw.rect(screen, BLUE, [self.x, self.y, self.width, self.height])
         bhits = font2.render(str(self.hits), 1, WHITE)
-        if self.hits < 10:
+        '''if self.hits < 10:
             screen.blit(bhits, [self.x + 45, self.y + 5])
         elif self.hits < 100:
             screen.blit(bhits, [self.x + 40, self.y + 5])
+        elif self.hits >= 100:
+            screen.blit(bhits, [self.x + 35, self.y + 5])'''
+
+
+        linex = self.width / 2 - bhits.get_width() / 2
+
+        screen.blit(bhits, [self.x + linex, self.y + 5])
 
             
        
@@ -373,6 +383,7 @@ balls.append(Ball(WIDTH/2, 715, 25, 25, 0))
 powerups = []
 
 powerups.append(Powerup(75, 600, 25, 25, 1))
+powerups.append(Powerup(210, 500, 100, 35, 1))
 
 # Game Loop ////////////////////////////////////////////////////////////////////
 done = False
@@ -385,9 +396,11 @@ while not done:
         if stage == 'delay':
                 if event.type == pygame.MOUSEBUTTONUP:
                     mx, my = pygame.mouse.get_pos()
-
+                    count = 0
                     for b in balls:
                         b.vx, b.vy = get_vel(b.x, b.y, mx, my, speed)
+                        b.delay = count
+                        count += 5
                         
                     print(mx, my)
                     stage = 'playing'
@@ -405,9 +418,9 @@ while not done:
     ''' move balls '''
     if stage == 'playing':
         for b in balls:
-            b.update()
-            if all_stopped(balls) == False:
-                b.delay -= 1
+            if b.delay <= 0:
+                b.update()
+            b.delay -= 1
 
     
 
@@ -436,6 +449,11 @@ while not done:
                         first = b.y
                 if first >= HEIGHT - 120:
                     stage = 'end'
+
+            if len(powerups) > 0:
+                for p in powerups:
+                    if p.y >= HEIGHT - 120:
+                        powerups.remove(p)
             '''else:
                 stage = 'end'''
     
@@ -452,8 +470,8 @@ while not done:
     for b in blocks:
         b.draw()
 
-    '''for p in powerups:
-        p.draw()'''
+    for p in powerups:
+        p.draw()
 
     if showline:
         pygame.draw.line(screen, RED, [balls[0].x + 10, balls[0].y + 10], [m_x, m_y,], 1)
