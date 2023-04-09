@@ -1,37 +1,47 @@
-import pygame
+from dataclasses import dataclass, asdict
+import argparse
 
-WIDTH = 835
-HEIGHT = 800
-SIZE = (WIDTH, HEIGHT)
-TITLE = "Brick Breaker"
+@dataclass
+class Config:
 
-# Colors ///////////////////////////////////////////////////////////////////////
-RED = (255, 4, 20)
-WHITE = (255, 255, 255)
-PINK = (254, 199, 204)
-LIGHT = (232, 237, 223)
-BLUE2 = (8, 65, 92)
-BLACK = (0, 0, 0)
-YELLOW = (255, 255, 0)
-GREEN = (115, 255, 0)
-BLUE = (0, 167, 225)
-DARK_MINT = (0, 103, 111)
-MINT2 = (0, 164, 176)
-MINT3 = (0, 226, 244)
-MINT4 = (113, 244, 255)
-MINT5 = (134, 254, 255)
+    window_width: int = 800
+    window_height: int = 800
+    title: str = "Brick Breaker"
+    fps: int = 60
+    ball_speed: int = 15
+    ball_radius:int = 25
 
+    grid_width:int = 6
+    grid_height:int = 9
+    
+    block_width:int = 100
+    block_height:int = 35
+    block_border_width:int = 2
 
-randco = (35, 54, 62)
+    header_height:int = 50
+    footer_height:int = 50
+    header_footer_line_height:int = 10
+    
+    @staticmethod
+    def get_parser():
+        parser = argparse.ArgumentParser()
 
-DEFAULT_FPS = 60
+        default_cfg = Config()
+        for k, default_val in asdict(default_cfg).items():
+            if isinstance(default_val, str):
+                help_msg = f"{k} (default: '{default_val}')"
+            else:
+                help_msg = f'{k} (default: {default_val})'
 
-BALL_SPEED = 15
+            parser.add_argument(
+                f'--{k}', 
+                type=type(default_val), 
+                default=default_val, 
+                help=help_msg)
 
-GRID_COL = 6
-GRID_ROW = 9
+        return parser        
 
-BALL_RADIUS = 25
-
-BLOCK_WIDTH = 100
-BLOCK_HEIGHT = 35
+    @staticmethod
+    def from_args(args: argparse.Namespace):
+        kwargs = vars(args)
+        return Config(**kwargs)

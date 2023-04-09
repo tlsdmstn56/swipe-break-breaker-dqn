@@ -1,4 +1,3 @@
-from typing import List
 import math
 
 def intersects(rect1, rect2):

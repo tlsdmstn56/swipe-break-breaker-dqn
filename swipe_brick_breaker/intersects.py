@@ -18,7 +18,6 @@ where (x, y) represents the coordinates of the upper left corner of
 the rectangle.
 """
 
-import math
 
 def point_circle(point, circle):
     a = point[0] - circle[0]
